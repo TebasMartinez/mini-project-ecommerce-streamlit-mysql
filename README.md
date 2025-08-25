@@ -1,1 +1,1 @@
-# mini-project-ecommerce-streamlit-mysql
+# Mini Project: E-commerce Store with Streamlit + MySQL
