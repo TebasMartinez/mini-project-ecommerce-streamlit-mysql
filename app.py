@@ -1,4 +1,3 @@
-import getpass 
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine, text
