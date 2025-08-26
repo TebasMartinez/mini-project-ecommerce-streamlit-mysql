@@ -11,8 +11,9 @@ def main():
         # show signup
             
         # show login
-            # once logged in
-            loggedin = True
+        
+        # once logged in
+        loggedin = True
 
     # show products
 
@@ -20,7 +21,7 @@ def main():
 
     # buy
 
-    # show previous orders
+    # button to show previous orders
 
 def signup():
     #to do
