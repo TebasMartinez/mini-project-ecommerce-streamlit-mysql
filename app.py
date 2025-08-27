@@ -15,8 +15,8 @@ def main():
         # page structure
         st.session_state.show_signup_form = False
         st.session_state.show_login_form = False
-        st.session_state.home_page = False
-        st.session_state.product_page = True
+        st.session_state.home_page = True
+        st.session_state.product_page = False
         st.session_state.thanks_page = False
         # variables / dics
         st.session_state.name = ""
@@ -65,6 +65,7 @@ def main():
                         st.session_state.show_login_form = False
                         st.session_state.home_page = False
                         st.session_state.product_page = True
+                        st.rerun()
                     else:
                         st.write("Wrong email or password, please try again")
 
@@ -108,9 +109,11 @@ def login(engine, email, password):
         result = connection.execute(query)
         row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
         if row is not None:
-            return True
+            first_name = row[1]
+            last_name = row[2]
+            return True, first_name, last_name
         else:
-            return False
+            return False, "", ""
 
 def displayproducts(engine):
     # Load data
