@@ -43,7 +43,10 @@ def displayproducts(engine):
         query = text("SELECT * FROM products;")
         result = connection.execute(query)
         df = pd.DataFrame(result.all())
-        df.rename(columns={"price":"price €"}, inplace=True)
+
+    # Clean data
+    df.rename(columns={"price":"price €"}, inplace=True)
+    df = df[df["stock"] > 0]
     
     # Show products table
     st.subheader("Available products:")
@@ -116,8 +119,9 @@ def buy(engine):
             for prod_id, prod_details in st.session_state.cart.items():
                 # Add rows for every product in the order to the junction table orders_products in the database
                 txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
-                            VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
+                          VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
                 mod_table(engine, txt)
+
                 # Update stock in the products table in the database
                 with engine.connect() as connection:
                     txt = f'''SELECT stock
