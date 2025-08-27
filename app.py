@@ -1,3 +1,4 @@
+from functions import signup, login, displayproducts, showorders, buy, updatecart, showcart
 import pandas as pd
 import pymysql
 from sqlalchemy import create_engine, text
@@ -88,95 +89,6 @@ def main():
 
     # TO DO: user bought something
         # to do: come back to product page
-
-    
-
-def signup(engine, first_name, last_name, email, password):
-    with engine.connect() as connection:
-        txt = f'''INSERT INTO customers (first_name, last_name, email, password)
-                  VALUES ("{first_name}", "{last_name}", "{email}", "{password}");'''
-        query = text(txt)
-        connection.execute(query)
-        connection.commit()
-        return True
-
-def login(engine, email, password):
-    with engine.connect() as connection:
-        txt = f'''SELECT customer_id, first_name, last_name, email, password
-          FROM customers
-          WHERE email = "{email}" AND password = "{password}" LIMIT 1;'''
-        query = text(txt)
-        result = connection.execute(query)
-        row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
-        if row is not None:
-            first_name = row[1]
-            last_name = row[2]
-            return True, first_name, last_name
-        else:
-            return False, "", ""
-
-def displayproducts(engine):
-    # Load data
-    with engine.connect() as connection:
-        query = text("SELECT * FROM products;")
-        result = connection.execute(query)
-        df = pd.DataFrame(result.all())
-    
-    # Show products table
-    st.subheader("Available products:")
-    st.dataframe(df)
-
-    return df
-
-def showorders():
-     # to do
-     pass
-
-def buy():
-    #to do
-    pass
-
-def updatecart(engine, df):
-    # Product and quantity dropdown
-    st.subheader("Buy now!")
-    left, right = st.columns(2)
-    product_chosen = left.selectbox("Choose a product", [x for x in df["name"]])
-    with engine.connect() as connection:
-        txt = f'''SELECT stock
-                  FROM products
-                  WHERE name = "{product_chosen}";'''
-        query = text(txt)
-        result = connection.execute(query)
-        stock = result.scalar_one()
-        quantity_chosen = right.selectbox("Choose a quantity", [x for x in range(1, stock+1)])
-
-    # Add to cart
-    left, center, right = st.columns(3)
-    if right.button("Add to cart"):
-        prod_id = df[df["name"] == product_chosen]["product_id"].values[0]
-        prod_price = df[df["name"] == product_chosen]["price"].values[0]
-        prod_total = prod_price * quantity_chosen
-        st.session_state.cart[prod_id] = [
-            product_chosen, 
-            quantity_chosen, 
-            prod_price, 
-            prod_total]
-        
-def showcart():
-    st.subheader("Your cart:")
-    if st.session_state.cart == {}:
-        st.write("Your cart is currently empty. Add something to the cart!")
-    else:
-        grand_total = 0
-        for product in st.session_state.cart:
-            prod_name = st.session_state.cart[product][0]
-            prod_qnty = float(st.session_state.cart[product][1])
-            prod_price = float(st.session_state.cart[product][2])
-            prod_total = round(st.session_state.cart[product][3], 2)
-            grand_total += round(prod_price * prod_qnty, 2)
-            st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}, the total for this product type in the cart is {prod_total}")
-            st.divider()
-        st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}")
 
 if __name__ == '__main__':
     main()
