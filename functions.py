@@ -176,10 +176,14 @@ def thankyou(engine):
 
 def backtoproducts():
     # to do
+    st.session_state.order_id = ""
+    st.session_state.order_total = ""
     pass
 
 def logout():
     # to do
+    st.session_state.order_id = ""
+    st.session_state.order_total = ""
     pass
 
 # COMMON USE FUNCTIONS
