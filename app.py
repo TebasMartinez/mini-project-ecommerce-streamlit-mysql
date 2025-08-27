@@ -73,9 +73,7 @@ def main():
 
     # PRODUCT PAGE (user is already logged in)
     if st.session_state.product_page:
-        with st.sidebar:
-            st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
-            st.text(f"You've logged in with your email: {st.session_state.email}")
+        f.user_sidebar()
         products_df = f.displayproducts(engine)
         f.updatecart(engine, products_df)
         f.showcart()

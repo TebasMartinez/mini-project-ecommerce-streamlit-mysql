@@ -26,6 +26,12 @@ def login(engine, email, password):
             return True, first_name, last_name, customer_id
         else:
             return False, "", "", ""
+        
+def user_sidebar():
+    with st.sidebar:
+        st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
+        st.text(f"You've logged in with your email: {st.session_state.email}")
+        # TO DO: SHOW PREVIOUS ORDERS
 
 def displayproducts(engine):
     # Load data
