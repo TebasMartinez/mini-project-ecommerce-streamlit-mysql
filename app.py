@@ -1,6 +1,5 @@
 from functions import signup, login, displayproducts, showorders, buy, updatecart, showcart
 import pandas as pd
-import pymysql
 from sqlalchemy import create_engine, text
 import streamlit as st
 
