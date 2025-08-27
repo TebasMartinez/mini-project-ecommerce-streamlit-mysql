@@ -128,6 +128,9 @@ def buy(engine):
                     connection.execute(query)
                     connection.commit()
             
+            # Empty cart
+            st.session_state.cart = {}
+            
             # Move to Thank you page
             st.session_state.product_page = False
             st.session_state.thanks_page = True
