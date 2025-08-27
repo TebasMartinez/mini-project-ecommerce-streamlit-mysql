@@ -15,6 +15,9 @@ def main():
     if "show_signup_form" not in st.session_state:
         st.session_state.show_signup_form = False
         st.session_state.show_login_form = False
+        st.session_state.name = ""
+        st.session_state.last_name = ""
+        st.session_state.email = ""
 
     left, right = st.columns(2) # creates 2 columns
     # SIGN UP button and form
@@ -34,7 +37,6 @@ def main():
             signup(engine, first_name, last_name, email, password)
             st.success("User added successfully!")
             st.session_state.show_signup_form = False
-            st.experimental_rerun()
 
     # LOG IN button and form
     if not st.session_state.show_login_form:
@@ -48,7 +50,7 @@ def main():
             password = st.text_input("Enter your password", type="password")
             submitted_login = st.form_submit_button("Submit")
         if submitted_login:
-            login()
+            login(email, password)
             st.success("You've succesfully logged in!")
             st.session_state.show_login_form = False
 
@@ -72,7 +74,7 @@ def signup(engine, first_name, last_name, email, password):
         connection.commit()
         return True
 
-def login():
+def login(email, password):
     #to do
     pass
 
