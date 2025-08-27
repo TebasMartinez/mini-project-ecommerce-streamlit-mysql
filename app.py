@@ -12,28 +12,48 @@ def main():
 
 
     # FIRST PAGE
-    loggedin = False
-    while loggedin == False:
-        left, right = st.columns(2) # creates 2 columns
+    if "show_signup_form" not in st.session_state:
+        st.session_state.show_signup_form = False
+        st.session_state.show_login_form = False
 
-        # Left button, sign up
-        # if left.button("Sign Up"):
-        st.header("Sign Up")
-        first_name = st.text_input("First Name")
-        last_name = st.text_input("Last name")
-        email = st.text_input("Email")
-        password = st.text_input("Password")
-        if st.button("Submit"):
+    left, right = st.columns(2) # creates 2 columns
+    # SIGN UP button and form
+    if not st.session_state.show_signup_form:
+        if left.button("Sign Up"):
+            st.session_state.show_signup_form = True
+            st.session_state.show_login_form = False
+    else:
+        with st.form("signup_form"):
+            st.header("Sign Up")
+            first_name = st.text_input("First Name")
+            last_name = st.text_input("Last name")
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+            submitted_signup = st.form_submit_button("Submit")
+        if submitted_signup:
             signup(engine, first_name, last_name, email, password)
+            st.success("User added successfully!")
+            st.session_state.show_signup_form = False
+            st.experimental_rerun()
 
-        # Right button, log in
+    # LOG IN button and form
+    if not st.session_state.show_login_form:
         if right.button("Log in"):
+            st.session_state.show_login_form = True
+            st.session_state.show_signup_form = False
+    else:
+        with st.form("login_form"):
             st.header("Log in")
             email = st.text_input("Enter your email")
-            password = st.text_input("Enter your password")
+            password = st.text_input("Enter your password", type="password")
+            submitted_login = st.form_submit_button("Submit")
+        if submitted_login:
+            login()
+            st.success("You've succesfully logged in!")
+            st.session_state.show_login_form = False
 
-        # once logged in
-        loggedin = True
+
+    # once logged in
 
     # show products
 
