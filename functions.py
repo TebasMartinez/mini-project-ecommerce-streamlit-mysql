@@ -25,7 +25,7 @@ def login(engine, email, password):
         else:
             return False, "", "", ""
 
-# USER FUNCTIONALITIES FUNCTION
+# USER FUNCTIONALITIES FUNCTIONS
 def user_sidebar():
     with st.sidebar:
         st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
