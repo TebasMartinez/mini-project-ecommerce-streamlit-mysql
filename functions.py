@@ -4,19 +4,16 @@ import streamlit as st
 
 # HOME PAGE FUNCTIONS 
 def signup(engine, first_name, last_name, email, password):
-    with engine.connect() as connection:
-        txt = f'''INSERT INTO customers (first_name, last_name, email, password)
-                  VALUES ("{first_name}", "{last_name}", "{email}", "{password}");'''
-        query = text(txt)
-        connection.execute(query)
-        connection.commit()
-        return True
+    txt = f'''INSERT INTO customers (first_name, last_name, email, password)
+              VALUES ("{first_name}", "{last_name}", "{email}", "{password}");'''
+    mod_table(engine, txt)
+    return True
 
 def login(engine, email, password):
     with engine.connect() as connection:
         txt = f'''SELECT customer_id, first_name, last_name, email, password
-          FROM customers
-          WHERE email = "{email}" AND password = "{password}" LIMIT 1;'''
+                  FROM customers
+                  WHERE email = "{email}" AND password = "{password}" LIMIT 1;'''
         query = text(txt)
         result = connection.execute(query)
         row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
@@ -103,12 +100,9 @@ def buy(engine):
             cart_total = calc_cart_total()
 
             # Add new order to orders table in the database
-            with engine.connect() as connection:
-                txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
-                          VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
-                query = text(txt)
-                connection.execute(query)
-                connection.commit()
+            txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
+                      VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
+            mod_table(engine, txt)
 
             # Get the generated order ID
             with engine.connect() as connection:
@@ -119,18 +113,28 @@ def buy(engine):
                 result = connection.execute(query)
                 order_id = result.scalar()
             
-            # Add rows for every product in the order to the junction table orders_products in the database
             for prod_id, prod_details in st.session_state.cart.items():
+                # Add rows for every product in the order to the junction table orders_products in the database
+                txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
+                            VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
+                mod_table(engine, txt)
+                # Update stock in the products table in the database
                 with engine.connect() as connection:
-                    txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
-                              VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
+                    txt = f'''SELECT stock
+                              FROM products
+                              WHERE product_id = "{prod_id}";'''
                     query = text(txt)
-                    connection.execute(query)
-                    connection.commit()
-            
+                    result = connection.execute(query)
+                    prev_stock = result.scalar()
+                new_stock = prev_stock - prod_details[1]
+                txt = f'''UPDATE products
+                          SET stock = "{new_stock}"
+                          WHERE product_id = "{prod_id}";'''
+                mod_table(engine, txt)
+                
             # Empty cart
             st.session_state.cart = {}
-            
+
             # Move to Thank you page
             st.session_state.product_page = False
             st.session_state.thanks_page = True
@@ -138,7 +142,15 @@ def buy(engine):
 
 # THANK YOU PAGE FUNCTIONS
 def thankyou(engine):
-    #to do
+    # to do
+    pass
+
+def backtoproducts():
+    # to do
+    pass
+
+def logout():
+    # to do
     pass
 
 # COMMON USE FUNCTIONS
@@ -148,3 +160,9 @@ def calc_cart_total():
         prod_total = st.session_state.cart[product][3]
         cart_total += prod_total
     return round(cart_total, 2)
+
+def mod_table(engine, txt):
+    with engine.connect() as connection:
+        query = text(txt)
+        connection.execute(query)
+        connection.commit()
