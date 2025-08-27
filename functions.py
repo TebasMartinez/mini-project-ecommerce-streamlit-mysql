@@ -1,5 +1,4 @@
 import pandas as pd
-import pymysql
 from sqlalchemy import create_engine, text
 import streamlit as st
 
@@ -33,6 +32,7 @@ def displayproducts(engine):
         query = text("SELECT * FROM products;")
         result = connection.execute(query)
         df = pd.DataFrame(result.all())
+        df.rename(columns={"price":"price €"}, inplace=True)
     
     # Show products table
     st.subheader("Available products:")
@@ -66,7 +66,7 @@ def updatecart(engine, df):
     left, center, right = st.columns(3)
     if right.button("Add to cart"):
         prod_id = df[df["name"] == product_chosen]["product_id"].values[0]
-        prod_price = df[df["name"] == product_chosen]["price"].values[0]
+        prod_price = df[df["name"] == product_chosen]["price €"].values[0]
         prod_total = prod_price * quantity_chosen
         st.session_state.cart[prod_id] = [
             product_chosen, 
@@ -86,6 +86,6 @@ def showcart():
             prod_price = float(st.session_state.cart[product][2])
             prod_total = round(st.session_state.cart[product][3], 2)
             grand_total += round(prod_price * prod_qnty, 2)
-            st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}, the total for this product type in the cart is {prod_total}")
+            st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}€, the total for this product type in the cart is {prod_total}€")
             st.divider()
-        st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}")
+        st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}€")
