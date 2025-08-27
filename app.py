@@ -172,15 +172,11 @@ def showcart():
             prod_name = st.session_state.cart[product][0]
             prod_qnty = float(st.session_state.cart[product][1])
             prod_price = float(st.session_state.cart[product][2])
-            prod_total = st.session_state.cart[product][3]
-            grand_total += prod_price * prod_qnty
-            st.write(f"You have {prod_qnty} {prod_name} in your cart, each of them costs {prod_price}, the total for this product type in the cart is {prod_total}")
+            prod_total = round(st.session_state.cart[product][3], 2)
+            grand_total += round(prod_price * prod_qnty, 2)
+            st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}, the total for this product type in the cart is {prod_total}")
             st.divider()
         st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}")
-
-def updatewishlist():
-    # to do
-    pass
 
 if __name__ == '__main__':
     main()
