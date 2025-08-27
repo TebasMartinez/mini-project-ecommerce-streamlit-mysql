@@ -17,6 +17,7 @@ def main():
         st.session_state.show_login_form = False
         st.session_state.home_page = False
         st.session_state.product_page = True
+        st.session_state.thanks_page = False
         # variables / dics
         st.session_state.name = ""
         st.session_state.last_name = ""
@@ -74,7 +75,8 @@ def main():
             st.text(f"You've logged in with your email: {st.session_state.email}")
             # TO DO: SHOW PREVIOUS ORDERS
         products_df = displayproducts(engine)
-        updatecart(products_df)
+        updatecart(engine, products_df)
+        showcart()
 
 
         # TO DO: show products
@@ -112,6 +114,17 @@ def displayproducts(engine):
     st.subheader("Available products:")
     st.dataframe(df)
 
+    return df
+
+def showorders():
+     # to do
+     pass
+
+def buy():
+    #to do
+    pass
+
+def updatecart(engine, df):
     # Product and quantity dropdown
     st.subheader("Buy now!")
     left, right = st.columns(2)
@@ -123,30 +136,35 @@ def displayproducts(engine):
         query = text(txt)
         result = connection.execute(query)
         stock = result.scalar_one()
-    quantity_chosen = right.selectbox("Choose a quantity", [x for x in range(1, stock+1)])
+        quantity_chosen = right.selectbox("Choose a quantity", [x for x in range(1, stock+1)])
 
-    return df
-
-def showorders():
-     # to do
-     pass
-
-def buy():
-    #to do
-    pass
-
-def updatecart(df):
     # Add to cart
     left, center, right = st.columns(3)
     if right.button("Add to cart"):
-        prod_id = df[df["name"] == product_chosen]["product_id"]
-        prod_price = df[df["name"] == product_chosen]["price"]
+        prod_id = df[df["name"] == product_chosen]["product_id"].values[0]
+        prod_price = df[df["name"] == product_chosen]["price"].values[0]
         prod_total = prod_price * quantity_chosen
         st.session_state.cart[prod_id] = [
             product_chosen, 
-            f"Quantity: {quantity_chosen}", 
-            f"Price: {prod_price}", 
-            f"Product Total: {prod_total}"]
+            quantity_chosen, 
+            prod_price, 
+            prod_total]
+        
+def showcart():
+    st.subheader("Your cart:")
+    if st.session_state.cart == {}:
+        st.write("Your cart is currently empty. Add something to the cart!")
+    else:
+        grand_total = 0
+        for product in st.session_state.cart:
+            prod_name = st.session_state.cart[product][0]
+            prod_qnty = float(st.session_state.cart[product][1])
+            prod_price = float(st.session_state.cart[product][2])
+            prod_total = st.session_state.cart[product][3]
+            grand_total += prod_price * prod_qnty
+            st.write(f"You have {prod_qnty} {prod_name} in your cart, each of them costs {prod_price}, the total for this product type in the cart is {prod_total}")
+            st.divider()
+        st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}")
 
 def updatewishlist():
     # to do
