@@ -24,6 +24,8 @@ def main():
         st.session_state.email = ""
         st.session_state.cart = {}
         st.session_state.cust_id = ""
+        st.session_state.order_id = ""
+        st.session_state.order_total = ""
 
     # HOME PAGE (user hasn't logged in)    
     if st.session_state.home_page == True:
@@ -69,9 +71,9 @@ def main():
                         st.session_state.product_page = True
                         st.rerun()
                     else:
-                        st.write("Wrong email or password, please try again")
+                        st.write("Wrong email or password, please try again.")
 
-    # PRODUCT PAGE (user is already logged in)
+    # PRODUCTS PAGE (user is already logged in)
     if st.session_state.product_page:
         f.user_sidebar()
         products_df = f.displayproducts(engine)
@@ -80,7 +82,11 @@ def main():
         f.buy(engine)
 
     # THANK YOU PAGE (user has bought something)
-        # to do: come back to product page
+    if st.session_state.thanks_page:
+        f.user_sidebar()
+        f.thankyou(engine)
+        # to do: 
+        # choose between: come back to product page, log out
 
 if __name__ == '__main__':
     main()

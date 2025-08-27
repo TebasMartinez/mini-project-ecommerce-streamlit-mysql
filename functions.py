@@ -101,6 +101,7 @@ def buy(engine):
             st.write("Your cart is still empty! Add something to your cart :)")
         else:
             cart_total = calc_cart_total()
+            st.session_state.order_total = cart_total
 
             # Add new order to orders table in the database
             txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
@@ -115,6 +116,7 @@ def buy(engine):
                                 LIMIT 1;''')
                 result = connection.execute(query)
                 order_id = result.scalar()
+                st.session_state.order_id = order_id
             
             for prod_id, prod_details in st.session_state.cart.items():
                 # Add rows for every product in the order to the junction table orders_products in the database
@@ -146,8 +148,31 @@ def buy(engine):
 
 # THANK YOU PAGE FUNCTIONS
 def thankyou(engine):
-    # to do
-    pass
+    st.subheader("Thank you for your order! :D")
+
+    # Get last order data
+    with engine.connect() as connection:
+        txt = f'''SELECT
+                    p.name AS "Product", 
+	                p.price AS "Product Price",
+                    op.quantity AS "Product Quantity",
+                    op.product_total AS "Product Total Price"
+                  FROM products AS p
+                  INNER JOIN orders_products AS op USING(product_id)
+                  INNER JOIN orders AS o USING(order_id)
+                  WHERE order_id = {st.session_state.order_id}
+                  ORDER BY order_id;'''
+        query = text(txt)
+        result = connection.execute(query)
+        df = pd.DataFrame(result.all())
+    
+    df.rename(columns={"Product Total Price":"Product Total Price €"}, inplace=True)
+
+    # Display last order data
+    st.text("Here are your order details:")
+    st.text(f"Order number: {st.session_state.order_id}")
+    st.text(f"Order total price: {st.session_state.order_total}€")
+    st.dataframe(df)
 
 def backtoproducts():
     # to do
@@ -159,6 +184,9 @@ def logout():
 
 # COMMON USE FUNCTIONS
 def calc_cart_total():
+    """
+    Calculates cart total price
+    """
     cart_total = 0
     for product in st.session_state.cart:
         prod_total = st.session_state.cart[product][3]
@@ -166,6 +194,10 @@ def calc_cart_total():
     return round(cart_total, 2)
 
 def mod_table(engine, txt):
+    """
+    Takes a SQL query inside a string (txt) and
+    runs it in the database connected through engine
+    """
     with engine.connect() as connection:
         query = text(txt)
         connection.execute(query)
