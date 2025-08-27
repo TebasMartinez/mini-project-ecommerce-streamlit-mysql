@@ -2,6 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 import streamlit as st
 
+# HOME PAGE FUNCTIONS 
 def signup(engine, first_name, last_name, email, password):
     with engine.connect() as connection:
         txt = f'''INSERT INTO customers (first_name, last_name, email, password)
@@ -26,13 +27,19 @@ def login(engine, email, password):
             return True, first_name, last_name, customer_id
         else:
             return False, "", "", ""
-        
+
+# USER FUNCTIONALITIES FUNCTION
 def user_sidebar():
     with st.sidebar:
         st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
         st.text(f"You've logged in with your email: {st.session_state.email}")
         # TO DO: SHOW PREVIOUS ORDERS
 
+def showorders():
+     # to do
+     pass
+
+# PRODUCT PAGE FUNCTIONS
 def displayproducts(engine):
     # Load data
     with engine.connect() as connection:
@@ -46,48 +53,6 @@ def displayproducts(engine):
     st.dataframe(df)
 
     return df
-
-def showorders():
-     # to do
-     pass
-
-def buy(engine):
-    if st.button("Buy"):
-        if st.session_state.cart == {}:
-            st.write("Your cart is still empty! Add something to your cart :)")
-        else:
-            cart_total = calc_cart_total()
-
-            # Add new order to orders table in the database
-            with engine.connect() as connection:
-                txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
-                          VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
-                query = text(txt)
-                connection.execute(query)
-                connection.commit()
-
-            # Get the generated order ID
-            with engine.connect() as connection:
-                query = text('''SELECT order_id
-                                FROM orders
-                                ORDER BY order_id DESC
-                                LIMIT 1;''')
-                result = connection.execute(query)
-                order_id = result.scalar()
-            
-            # Add rows for every product in the order to the junction table orders_products in the database
-            for prod_id, prod_details in st.session_state.cart.items():
-                with engine.connect() as connection:
-                    txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
-                              VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
-                    query = text(txt)
-                    connection.execute(query)
-                    connection.commit()
-            
-            # Move to Thank you page
-            st.session_state.product_page = False
-            st.session_state.thanks_page = True
-            st.rerun()
 
 def updatecart(engine, df):
     # Product and quantity dropdown
@@ -130,6 +95,45 @@ def showcart():
         cart_total = calc_cart_total()
         st.write(f"THE TOTAL OF YOUR ORDER IS: {cart_total}€")
 
+def buy(engine):
+    if st.button("Buy"):
+        if st.session_state.cart == {}:
+            st.write("Your cart is still empty! Add something to your cart :)")
+        else:
+            cart_total = calc_cart_total()
+
+            # Add new order to orders table in the database
+            with engine.connect() as connection:
+                txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
+                          VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
+                query = text(txt)
+                connection.execute(query)
+                connection.commit()
+
+            # Get the generated order ID
+            with engine.connect() as connection:
+                query = text('''SELECT order_id
+                                FROM orders
+                                ORDER BY order_id DESC
+                                LIMIT 1;''')
+                result = connection.execute(query)
+                order_id = result.scalar()
+            
+            # Add rows for every product in the order to the junction table orders_products in the database
+            for prod_id, prod_details in st.session_state.cart.items():
+                with engine.connect() as connection:
+                    txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
+                              VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
+                    query = text(txt)
+                    connection.execute(query)
+                    connection.commit()
+            
+            # Move to Thank you page
+            st.session_state.product_page = False
+            st.session_state.thanks_page = True
+            st.rerun()
+
+# COMMON USE FUNCTIONS
 def calc_cart_total():
     cart_total = 0
     for product in st.session_state.cart:
