@@ -20,11 +20,12 @@ def login(engine, email, password):
         result = connection.execute(query)
         row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
         if row is not None:
+            customer_id = row[0]
             first_name = row[1]
             last_name = row[2]
-            return True, first_name, last_name
+            return True, first_name, last_name, customer_id
         else:
-            return False, "", ""
+            return False, "", "", ""
 
 def displayproducts(engine):
     # Load data
@@ -44,9 +45,36 @@ def showorders():
      # to do
      pass
 
-def buy():
-    #to do
-    pass
+def buy(engine):
+    if st.button("Buy"):
+        if st.session_state.cart == {}:
+            st.write("Your cart is still empty! Add something to your cart :)")
+        else:
+            cart_total = calc_cart_total()
+            with engine.connect() as connection:
+                txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
+                          VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
+                query = text(txt)
+                connection.execute(query)
+                connection.commit()
+            for prod_id, prod_details in st.session_state.cart:
+                with engine.connect() as connection:
+                    txt = f'''START TRANSACTION;
+                            
+                              SET @order_id = (SELECT order_id
+				                               FROM orders
+				                               ORDER BY order_id DESC
+                                               LIMIT 1);
+
+                              INSERT INTO orders_products (product_id, order_id, quantity, product_total)
+                              VALUES ("{prod_id}", @order_id, "{prod_details[1]}", "{prod_details[3]}");
+                              
+                              COMMIT;'''
+                    query = text(txt)
+                    connection.execute(query)
+                    connection.commit()
+                st.session_state.product_page = False
+                st.session_state.thanks_page = True
 
 def updatecart(engine, df):
     # Product and quantity dropdown
@@ -79,13 +107,19 @@ def showcart():
     if st.session_state.cart == {}:
         st.write("Your cart is currently empty. Add something to the cart!")
     else:
-        grand_total = 0
         for product in st.session_state.cart:
             prod_name = st.session_state.cart[product][0]
             prod_qnty = float(st.session_state.cart[product][1])
             prod_price = float(st.session_state.cart[product][2])
             prod_total = round(st.session_state.cart[product][3], 2)
-            grand_total += round(prod_price * prod_qnty, 2)
             st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}€, the total for this product type in the cart is {prod_total}€")
             st.divider()
-        st.write(f"THE TOTAL OF YOUR ORDER IS: {grand_total}€")
+        cart_total = calc_cart_total()
+        st.write(f"THE TOTAL OF YOUR ORDER IS: {cart_total}€")
+
+def calc_cart_total():
+    cart_total = 0
+    for product in st.session_state.cart:
+        prod_total = st.session_state.cart[product][3]
+        cart_total += prod_total
+    return round(cart_total, 2)
