@@ -100,8 +100,17 @@ def signup(engine, first_name, last_name, email, password):
         return True
 
 def login(engine, email, password):
-    #to do
-    pass
+    with engine.connect() as connection:
+        txt = f'''SELECT customer_id, first_name, last_name, email, password
+          FROM customers
+          WHERE email = "{email}" AND password = "{password}" LIMIT 1;'''
+        query = text(txt)
+        result = connection.execute(query)
+        row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
+        if row is not None:
+            return True
+        else:
+            return False
 
 def displayproducts(engine):
     # Load data
