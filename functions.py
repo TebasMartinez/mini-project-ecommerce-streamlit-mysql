@@ -57,30 +57,37 @@ def buy(engine):
             st.write("Your cart is still empty! Add something to your cart :)")
         else:
             cart_total = calc_cart_total()
+
+            # Add new order to orders table in the database
             with engine.connect() as connection:
                 txt = f'''INSERT INTO orders (order_date, order_total, customer_id)
                           VALUES (CURRENT_DATE(), "{cart_total}", "{st.session_state.cust_id}");'''
                 query = text(txt)
                 connection.execute(query)
                 connection.commit()
-            for prod_id, prod_details in st.session_state.cart:
-                with engine.connect() as connection:
-                    txt = f'''START TRANSACTION;
-                            
-                              SET @order_id = (SELECT order_id
-				                               FROM orders
-				                               ORDER BY order_id DESC
-                                               LIMIT 1);
 
-                              INSERT INTO orders_products (product_id, order_id, quantity, product_total)
-                              VALUES ("{prod_id}", @order_id, "{prod_details[1]}", "{prod_details[3]}");
-                              
-                              COMMIT;'''
+            # Get the generated order ID
+            with engine.connect() as connection:
+                query = text('''SELECT order_id
+                                FROM orders
+                                ORDER BY order_id DESC
+                                LIMIT 1;''')
+                result = connection.execute(query)
+                order_id = result.scalar()
+            
+            # Add rows for every product in the order to the junction table orders_products in the database
+            for prod_id, prod_details in st.session_state.cart.items():
+                with engine.connect() as connection:
+                    txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
+                              VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
                     query = text(txt)
                     connection.execute(query)
                     connection.commit()
-                st.session_state.product_page = False
-                st.session_state.thanks_page = True
+            
+            # Move to Thank you page
+            st.session_state.product_page = False
+            st.session_state.thanks_page = True
+            st.rerun()
 
 def updatecart(engine, df):
     # Product and quantity dropdown
@@ -96,7 +103,7 @@ def updatecart(engine, df):
         stock = result.scalar_one()
         quantity_chosen = right.selectbox("Choose a quantity", [x for x in range(1, stock+1)])
 
-    # Add to cart
+    # Add to cart button
     left, center, right = st.columns(3)
     if right.button("Add to cart"):
         prod_id = df[df["name"] == product_chosen]["product_id"].values[0]
