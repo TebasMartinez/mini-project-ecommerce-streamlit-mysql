@@ -133,6 +133,11 @@ def buy(engine):
             st.session_state.thanks_page = True
             st.rerun()
 
+# THANK YOU PAGE FUNCTIONS
+def thankyou(engine):
+    #to do
+    pass
+
 # COMMON USE FUNCTIONS
 def calc_cart_total():
     cart_total = 0
