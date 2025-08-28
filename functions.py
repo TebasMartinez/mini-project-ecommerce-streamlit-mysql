@@ -32,11 +32,9 @@ def user_sidebar(engine):
         st.text(f"You've logged in with your email: {st.session_state.email}")
         customer_rank(engine)
         showorders(engine)
-        # TO DO: SHOW PREVIOUS ORDERS
 
 def showorders(engine):
      if st.button("My Orders"):
-     
         with engine.connect() as connection:
             txt = f''' SELECT o.order_date, p.name AS product_name, op.quantity, op.product_total, o.order_id, o.order_total  
                         FROM customers c
@@ -50,9 +48,7 @@ def showorders(engine):
             result = connection.execute(query)
             df = pd.DataFrame(result.all())
         
-
             if len(df) > 0:
-                
                 st.dataframe(df)
             else:
                 st.text("You haven't ordered anything yet. Go to the Product Page and buy something! :)")
@@ -68,7 +64,8 @@ def customer_rank(engine):
 
     # Get total_spent and customer rank of current customer
         txt = f'''WITH total_spent AS (
-                  SELECT customer_id, SUM(order_total) AS total_spent
+                  SELECT customer_id, 
+                  COALESCE(SUM(order_total), 0) AS total_spent
                   FROM customers
                   LEFT JOIN orders USING(customer_id)
                   GROUP BY customer_id),
@@ -82,16 +79,21 @@ def customer_rank(engine):
 	                  rank_
                   FROM total_spent_ranked
                   WHERE customer_id = {st.session_state.cust_id}
-                  ORDER BY rank_;'''
+                  ORDER BY rank_, customer_id;'''
         query = text(txt)
         result = connection.execute(query)
         row = result.fetchone()
+        st.subheader("Customer Rank:")
         total_spent = row[1]
         cust_rank = row[2]
+        if total_spent > 0:
+            st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
+                        You've spent {total_spent}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
+        else:
+            st.write("You haven't placed any order yet. Buy something to enter our customer rank!")
     
-    st.subheader("Customer Rank:")
-    st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
-             You've spent {total_spent}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
+    
+
 
 # PRODUCT PAGE FUNCTIONS
 def displayproducts(engine):
@@ -142,16 +144,22 @@ def showcart():
     if st.session_state.cart == {}:
         st.write("Your cart is currently empty. Add something to the cart!")
     else:
-        for product in st.session_state.cart:
-            prod_name = st.session_state.cart[product][0]
-            prod_qnty = float(st.session_state.cart[product][1])
-            prod_price = float(st.session_state.cart[product][2])
-            prod_total = round(st.session_state.cart[product][3], 2)
-            st.write(f"You have {int(prod_qnty)} {prod_name} in your cart, each of them costs {prod_price}€, the total for this product type in the cart is {prod_total}€")
-            st.divider()
         cart_total = calc_cart_total()
-        st.write(f"THE TOTAL OF YOUR ORDER IS: {cart_total}€")
-
+        st.markdown(f"**THE TOTAL PRICE OF YOUR CART IS: {cart_total}€**")
+        for prod_id, product in st.session_state.cart.items():
+            left, right = st.columns(2)
+            prod_name = product[0]
+            prod_qnty = float(product[1])
+            prod_price = float(product[2])
+            prod_total = round(product[3], 2)
+            imgpath = f"images/{prod_id}.jpg"
+            left.image(imgpath, width=300)
+            right.write(f"{prod_name}")
+            right.write(f"Quantity: {int(prod_qnty)}")
+            right.write(f"Price per unit: {prod_price}€")
+            right.write(f"Total product price: {prod_total}€")
+            st.divider()
+        
 def buy(engine):
     if st.button("Buy"):
         if st.session_state.cart == {}:
