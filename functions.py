@@ -3,6 +3,47 @@ from sqlalchemy import create_engine, text
 import streamlit as st
 
 # HOME PAGE FUNCTIONS 
+def signup_button_and_form(engine, position):
+    if position.button("Sign Up"):
+                st.session_state.show_login_form = False
+                st.session_state.show_signup_form = not st.session_state.show_signup_form
+                st.rerun()
+    if st.session_state.show_signup_form:
+        with st.form("signup_form"):
+            st.header("Sign Up")
+            first_name = st.text_input("First Name")
+            last_name = st.text_input("Last name")
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+            submitted_signup = st.form_submit_button("Submit")
+        if submitted_signup:
+            f.signup(engine, first_name, last_name, email, password)
+            st.success("User added successfully!")
+            st.session_state.show_signup_form = False
+            st.rerun()
+
+def login_button_and_form(engine, position):
+    if position.button("Log in"):
+                st.session_state.show_signup_form = False
+                st.session_state.show_login_form = not st.session_state.show_login_form
+                st.rerun()
+    if st.session_state.show_login_form:
+        with st.form("login_form"):
+            st.header("Log in")
+            st.session_state.email = st.text_input("Enter your email")
+            password = st.text_input("Enter your password", type="password")
+            submitted_login = st.form_submit_button("Submit")
+        if submitted_login:
+            success, st.session_state.name, st.session_state.last_name, st.session_state.cust_id = f.login(engine, st.session_state.email, password)
+            if success == True:
+                st.success("You've succesfully logged in!")
+                st.session_state.show_login_form = False
+                st.session_state.home_page = False
+                st.session_state.product_page = True
+                st.rerun()
+            else:
+                st.write("Wrong email or password, please try again.")
+
 def signup(engine, first_name, last_name, email, password):
     txt = f'''INSERT INTO customers (first_name, last_name, email, password)
               VALUES ("{first_name}", "{last_name}", "{email}", "{password}");'''
