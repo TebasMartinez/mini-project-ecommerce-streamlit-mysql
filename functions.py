@@ -17,7 +17,7 @@ def signup_button_and_form(engine, position):
             password = st.text_input("Password", type="password")
             submitted_signup = st.form_submit_button("Submit")
         if submitted_signup:
-            f.signup(engine, first_name, last_name, email, password)
+            signup(engine, first_name, last_name, email, password)
             st.success("User added successfully!")
             st.session_state.show_signup_form = False
             st.rerun()
@@ -34,7 +34,7 @@ def login_button_and_form(engine, position):
             password = st.text_input("Enter your password", type="password")
             submitted_login = st.form_submit_button("Submit")
         if submitted_login:
-            success, st.session_state.name, st.session_state.last_name, st.session_state.cust_id = f.login(engine, st.session_state.email, password)
+            success, st.session_state.name, st.session_state.last_name, st.session_state.cust_id = login(engine, st.session_state.email, password)
             if success == True:
                 st.success("You've succesfully logged in!")
                 st.session_state.show_login_form = False
@@ -75,7 +75,9 @@ def user_sidebar(engine):
         showorders(engine)
 
 def showorders(engine):
-     if st.button("My Orders"):
+    if st.button("My Orders"):
+        st.session_state.show_orders = not st.session_state.show_orders 
+    if st.session_state.show_orders:
         with engine.connect() as connection:
             txt = f''' SELECT o.order_date, p.name AS product_name, op.quantity, op.product_total, o.order_id, o.order_total  
                         FROM customers c
@@ -129,12 +131,9 @@ def customer_rank(engine):
         cust_rank = row[2]
         if total_spent > 0:
             st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
-                        You've spent {total_spent}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
+                        You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
         else:
             st.write("You haven't placed any order yet. Buy something to enter our customer rank!")
-    
-    
-
 
 # PRODUCT PAGE FUNCTIONS
 def displayproducts(engine):
@@ -185,8 +184,6 @@ def showcart():
     if st.session_state.cart == {}:
         st.write("Your cart is currently empty. Add something to the cart!")
     else:
-        cart_total = calc_cart_total()
-        st.markdown(f"**THE TOTAL PRICE OF YOUR CART IS: {cart_total}€**")
         for prod_id, product in st.session_state.cart.items():
             left, right = st.columns(2)
             prod_name = product[0]
@@ -200,6 +197,8 @@ def showcart():
             right.write(f"Price per unit: {prod_price}€")
             right.write(f"Total product price: {prod_total}€")
             st.divider()
+        cart_total = calc_cart_total()
+        st.markdown(f"**THE TOTAL PRICE OF YOUR CART IS: {cart_total}€**")
         
 def buy(engine):
     if st.button("Buy"):
