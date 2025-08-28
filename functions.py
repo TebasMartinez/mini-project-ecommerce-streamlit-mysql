@@ -72,10 +72,12 @@ def user_sidebar(engine):
         st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
         st.text(f"You've logged in with your email: {st.session_state.email}")
         customer_rank(engine)
-        showorders(engine)
+        left, right = st.columns(2)
+        showorders(engine, left)
+        logout(right)
 
-def showorders(engine):
-    if st.button("My Orders"):
+def showorders(engine, position):
+    if position.button("My Orders"):
         st.session_state.show_orders = not st.session_state.show_orders 
     if st.session_state.show_orders:
         with engine.connect() as connection:
