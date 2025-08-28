@@ -184,7 +184,7 @@ def showcart():
     if st.session_state.cart == {}:
         st.write("Your cart is currently empty. Add something to the cart!")
     else:
-        for prod_id, product in st.session_state.cart.items():
+        for prod_id, product in list(st.session_state.cart.items()):
             left, right = st.columns(2)
             prod_name = product[0]
             prod_qnty = float(product[1])
@@ -196,10 +196,13 @@ def showcart():
             right.write(f"Quantity: {int(prod_qnty)}")
             right.write(f"Price per unit: {prod_price}€")
             right.write(f"Total product price: {prod_total}€")
+            if right.button("Remove from cart", key=f"remove_{prod_id}"):
+                del st.session_state.cart[prod_id]
+                st.rerun()
             st.divider()
         cart_total = calc_cart_total()
         st.markdown(f"**THE TOTAL PRICE OF YOUR CART IS: {cart_total}€**")
-        
+    
 def buy(engine):
     if st.button("Buy"):
         if st.session_state.cart == {}:
