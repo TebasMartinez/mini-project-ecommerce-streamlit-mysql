@@ -302,6 +302,7 @@ def backtoproducts(position):
         st.session_state.order_id = ""
         st.session_state.order_total = ""
         st.session_state.thanks_page = False
+        st.session_state.home_page = False
         st.session_state.product_page = True
 
 def logout(position):
@@ -313,6 +314,7 @@ def logout(position):
         st.session_state.email = ""
         st.session_state.cust_id = ""
         st.session_state.thanks_page = False
+        st.session_state.product_page = False
         st.session_state.home_page = True
 
 # COMMON USE FUNCTIONS
