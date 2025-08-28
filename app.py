@@ -85,8 +85,9 @@ def main():
     if st.session_state.thanks_page:
         f.user_sidebar()
         f.thankyou(engine)
-        # to do: 
-        # choose between: come back to product page, log out
+        left, right = st.columns(2)
+        f.backtoproducts(left)
+        f.logout(right)
 
 if __name__ == '__main__':
     main()

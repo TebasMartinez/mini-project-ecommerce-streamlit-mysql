@@ -178,17 +178,23 @@ def thankyou(engine):
     st.text(f"Order total price: {st.session_state.order_total}€")
     st.dataframe(df)
 
-def backtoproducts():
-    # to do
-    st.session_state.order_id = ""
-    st.session_state.order_total = ""
-    pass
+def backtoproducts(position):
+    if position.button("Back to products page"):
+        st.session_state.order_id = ""
+        st.session_state.order_total = ""
+        st.session_state.thanks_page = False
+        st.session_state.product_page = True
 
-def logout():
-    # to do
-    st.session_state.order_id = ""
-    st.session_state.order_total = ""
-    pass
+def logout(position):
+    if position.button("Log out"):
+        st.session_state.order_id = ""
+        st.session_state.order_total = ""
+        st.session_state.name = ""
+        st.session_state.last_name = ""
+        st.session_state.email = ""
+        st.session_state.cust_id = ""
+        st.session_state.thanks_page = False
+        st.session_state.home_page = True
 
 # COMMON USE FUNCTIONS
 def calc_cart_total():
