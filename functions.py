@@ -119,6 +119,10 @@ def buy(engine):
                 st.session_state.order_id = order_id
             
             for prod_id, prod_details in st.session_state.cart.items():
+                # Cart is a dictionary where for each entry the key is the product ID
+                # and the value is a list with the following data, in this order:
+                # product_chosen, quantity_chosen, prod_price, prod_total
+
                 # Add rows for every product in the order to the junction table orders_products in the database
                 txt = f'''INSERT INTO orders_products (product_id, order_id, quantity, product_total)
                           VALUES ("{prod_id}", "{order_id}", "{prod_details[1]}", "{prod_details[3]}");'''
