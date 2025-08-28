@@ -19,6 +19,7 @@ def main():
         # buttons / forms
         st.session_state.show_signup_form = False
         st.session_state.show_login_form = False
+        st.session_state.show_orders = False
         # session variables and dict
         st.session_state.name = ""
         st.session_state.last_name = ""
