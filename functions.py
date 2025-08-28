@@ -173,11 +173,16 @@ def updatecart(engine, df):
         prod_id = df[df["name"] == product_chosen]["product_id"].values[0]
         prod_price = df[df["name"] == product_chosen]["price €"].values[0]
         prod_total = prod_price * quantity_chosen
-        st.session_state.cart[prod_id] = [
-            product_chosen, 
-            quantity_chosen, 
-            prod_price, 
-            prod_total]
+        if prod_id not in st.session_state.cart: # Product isn't yet in the cart
+            st.session_state.cart[prod_id] = [
+                product_chosen, 
+                quantity_chosen, 
+                prod_price, 
+                prod_total]
+        else: # Product is already in the cart and the user adds more
+            st.session_state.cart[prod_id][1] += quantity_chosen
+            st.session_state.cart[prod_id][3] = st.session_state.cart[prod_id][1] * prod_price
+        st.rerun()
         
 def showcart():
     st.subheader("Your cart:")
