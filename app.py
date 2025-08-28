@@ -11,13 +11,14 @@ def main():
     engine = create_engine(f"mysql+pymysql://{db.user}:{db.password}@{db.host}/{db.database}")
 
     # Session set up
-    if "show_signup_form" not in st.session_state:
+    if "home_page" not in st.session_state:
         # page structure
-        st.session_state.show_signup_form = False
-        st.session_state.show_login_form = False
         st.session_state.home_page = True
         st.session_state.product_page = False
         st.session_state.thanks_page = False
+        # buttons / forms
+        st.session_state.show_signup_form = False
+        st.session_state.show_login_form = False
         # session variables and dict
         st.session_state.name = ""
         st.session_state.last_name = ""
