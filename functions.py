@@ -26,15 +26,52 @@ def login(engine, email, password):
             return False, "", "", ""
 
 # USER FUNCTIONALITIES FUNCTIONS
-def user_sidebar():
+def user_sidebar(engine):
     with st.sidebar:
         st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
         st.text(f"You've logged in with your email: {st.session_state.email}")
+        customer_rank(engine)
         # TO DO: SHOW PREVIOUS ORDERS
 
 def showorders():
      # to do
      pass
+
+def customer_rank(engine):
+    # Get number of total customers existing
+    with engine.connect() as connection:
+        txt = f'''SELECT COUNT(*)
+                  FROM customers;'''
+        query = text(txt)
+        result = connection.execute(query)
+        total_customers = result.scalar_one()
+
+    # Get total_spent and customer rank of current customer
+        txt = f'''WITH total_spent AS (
+                  SELECT customer_id, SUM(order_total) AS total_spent
+                  FROM customers
+                  LEFT JOIN orders USING(customer_id)
+                  GROUP BY customer_id),
+                  total_spent_ranked AS (
+                  SELECT customer_id, 
+	                  total_spent,
+                      DENSE_RANK() OVER (ORDER BY total_spent DESC) as rank_
+                  FROM total_spent)
+                  SELECT customer_id, 
+                  total_spent AS "Total Spent",
+	                  rank_
+                  FROM total_spent_ranked
+                  WHERE customer_id = {st.session_state.cust_id}
+                  ORDER BY rank_;'''
+        query = text(txt)
+        result = connection.execute(query)
+        row = result.fetchone()
+        total_spent = row[1]
+        cust_rank = row[2]
+    
+    st.subheader("Customer Rank:")
+    st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
+             You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
 
 # PRODUCT PAGE FUNCTIONS
 def displayproducts(engine):

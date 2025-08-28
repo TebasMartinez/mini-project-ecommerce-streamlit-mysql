@@ -75,7 +75,7 @@ def main():
 
     # PRODUCTS PAGE (user is already logged in)
     if st.session_state.product_page:
-        f.user_sidebar()
+        f.user_sidebar(engine)
         products_df = f.displayproducts(engine)
         f.updatecart(engine, products_df)
         f.showcart()
@@ -83,7 +83,7 @@ def main():
 
     # THANK YOU PAGE (user has bought something)
     if st.session_state.thanks_page:
-        f.user_sidebar()
+        f.user_sidebar(engine)
         f.thankyou(engine)
         left, right = st.columns(2)
         f.backtoproducts(left)
