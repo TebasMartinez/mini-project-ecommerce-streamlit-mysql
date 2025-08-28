@@ -63,7 +63,7 @@ Includes:
   - `logout(position)`
 ### User functionalities
 These are functionalities appearing in multiple pages through the page and therefore moved into functions in the `functions.py` file.
-- `user_sidebar(engine)` function generates a sidebar in which the user is welcomed by named and informed of which email they've used to log in. It also calls the other user functionalities functions, including:
+- `user_sidebar(engine)` function generates a sidebar in which the user is welcomed by named and informed of which email they've used to log in. It also calls other user functionalities functions, including:
   - `customer_rank(engine)` function ranks the user based on the amount of money they have spent on the shop compared to all customers. It counts the total amount of users in the customers table, ranks users in the customers table based on total spent, and informs the user of their rank, the total amount of customers, and the total amount they have spent on the site.
   - `showorders(engine, position)` allows the user to see a table with information of all their previous orders.
   - `logout(position)`
