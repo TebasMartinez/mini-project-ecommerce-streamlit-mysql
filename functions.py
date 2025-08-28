@@ -130,8 +130,12 @@ def customer_rank(engine):
         total_spent = row[1]
         cust_rank = row[2]
         if total_spent > 0:
-            st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
-                        You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
+            if cust_rank == 1:
+                st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
+                            You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to stay in the top!''')
+            else:
+                st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
+                            You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
         else:
             st.write("You haven't placed any order yet. Buy something to enter our customer rank!")
 
