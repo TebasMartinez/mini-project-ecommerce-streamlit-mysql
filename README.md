@@ -29,7 +29,7 @@ streamlit run app.py
 ## App Structure
 - Inside our main function in `app.py` we start with the app title, which appears in all pages through the app. 
 - Following the title is the connection to the database, which will be used in multiple functions in our program.
-- The app is structured with streamlit session states. In the _session set up_ section we include these structure session states, as well as session variables that are used to store values for logged in users, such as their email address or their cart. There are structure session states for Home Page, Products Page, and Thank You Page. These session states store booleans which can be used inside if statements to allow navigation through the site.
+- The app is structured with streamlit session states. In the _session set up_ section we include these structure session states, as well as session states to activate buttons/forms and session variables that are used to store values for logged in users, such as their email address or their cart. There are structure session states for Home Page, Products Page, and Thank You Page. These session states store booleans which can be used inside if statements to allow navigation through the site.
 - Many functionalities have been moved into functions in the `functions.py` file to allow for better readability and debugging.
 
 ### Home Page
@@ -42,7 +42,7 @@ Includes:
 ### Products Page
 - Includes user sidebar by calling `user_sidebar(engine)` function.
 - Shows products with the `displayproducts(engine)`, which stores all columns in the products table in the database into a pandas dataframe, shortly cleans the data (adds euro symbol to price column name, and avoids showing any product without stock), and shows the dataframe to the user. This functions returns the resulting dataframe so it can be used in the next function.
-- `update_cart(engine, df)` generates two dropdown menus so the user can choose a product and an amount. The following 'Add to cart' button adds the chosen product and its information in the session state `st.session_state.cart`, which is a dictionary storing entries where each key is a product ID and each value is a list including said product's details (in this order: Product Name, Quantity, Product Price, Product Total Price).
+- `update_cart(engine, df)` generates two dropdown menus so the user can choose a product and an amount. The following 'Add to cart' button adds the chosen product and its information in the session state `st.session_state.cart`, which is a dictionary storing entries where each key is a product ID and each value is a list including said product's details (in this order: Product Name, Quantity, Product Price, Product Total Price). It also allows the user to add more units of a product already to the cart. 
 - `showcart()` prompts the user to add something to the cart when the session state cart is empty, and otherwise shows what is in the cart, using `st.divider()` to separate each product, and displays in the end the total cart price calculated with the `calc_cart_total()` function.
 - The `buy(engine)` function includes a button at the end of the cart section. When cliked, this button performs different actions:
   - Adds the order to the orders table in the database.
@@ -65,3 +65,5 @@ Includes:
 These are functionalities appearing in multiple pages through the page and therefore moved into functions in the `functions.py` file.
 - `user_sidebar(engine)` function generates a sidebar in which the user is welcomed by named and informed of which email they've used to log in. It also calls the other user functionalities functions, including:
   - `customer_rank(engine)` function ranks the user based on the amount of money they have spent on the shop compared to all customers. It counts the total amount of users in the customers table, ranks users in the customers table based on total spent, and informs the user of their rank, the total amount of customers, and the total amount they have spent on the site.
+  - `showorders(engine, position)` allows the user to see a table with information of all their previous orders.
+  - `logout(position)`
