@@ -34,7 +34,7 @@ def login_button_and_form(engine, position):
             password = st.text_input("Enter your password", type="password")
             submitted_login = st.form_submit_button("Submit")
         if submitted_login:
-            success, st.session_state.name, st.session_state.last_name, st.session_state.cust_id = login(engine, st.session_state.email, password)
+            success = login(engine, st.session_state.email, password)
             if success == True:
                 st.success("You've succesfully logged in!")
                 st.session_state.show_login_form = False
@@ -59,12 +59,12 @@ def login(engine, email, password):
         result = connection.execute(query)
         row = result.fetchone() # fetchone() gives us one row if the email+password exists, or None if not
         if row is not None:
-            customer_id = row[0]
-            first_name = row[1]
-            last_name = row[2]
-            return True, first_name, last_name, customer_id
+            st.session_state.cust_id = row[0]
+            st.session_state.name = row[1]
+            st.session_state.last_name = row[2]
+            return True
         else:
-            return False, "", "", ""
+            return False
 
 # USER FUNCTIONALITIES FUNCTIONS
 def user_sidebar(engine):
@@ -304,6 +304,7 @@ def backtoproducts(position):
         st.session_state.thanks_page = False
         st.session_state.home_page = False
         st.session_state.product_page = True
+        st.rerun()
 
 def logout(position):
     if position.button("Log out"):
@@ -316,6 +317,7 @@ def logout(position):
         st.session_state.thanks_page = False
         st.session_state.product_page = False
         st.session_state.home_page = True
+        st.rerun()
 
 # COMMON USE FUNCTIONS
 def calc_cart_total():
