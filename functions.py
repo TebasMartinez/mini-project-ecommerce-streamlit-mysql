@@ -31,11 +31,31 @@ def user_sidebar(engine):
         st.text(f"Welcome to the StreamQL Shop, {st.session_state.name} {st.session_state.last_name}")
         st.text(f"You've logged in with your email: {st.session_state.email}")
         customer_rank(engine)
+        showorders(engine)
         # TO DO: SHOW PREVIOUS ORDERS
 
-def showorders():
-     # to do
-     pass
+def showorders(engine):
+     if st.button("My Orders"):
+     
+        with engine.connect() as connection:
+            txt = f''' SELECT o.order_date, p.name AS product_name, op.quantity, op.product_total, o.order_id, o.order_total  
+                        FROM customers c
+                        JOIN orders o ON c.customer_id = o.customer_id
+                        JOIN orders_products op ON o.order_id = op.order_id
+                        JOIN products p ON op.product_id = p.product_id
+                        WHERE c.email = '{st.session_state.email}'
+                        ORDER BY o.order_id DESC
+                        '''
+            query = text(txt)
+            result = connection.execute(query)
+            df = pd.DataFrame(result.all())
+        
+
+            if len(df) > 0:
+                
+                st.dataframe(df)
+            else:
+                st.text("You haven't ordered anything yet. Go to the Product Page and buy something! :)")
 
 def customer_rank(engine):
     # Get number of total customers existing
@@ -71,7 +91,7 @@ def customer_rank(engine):
     
     st.subheader("Customer Rank:")
     st.write(f'''You're customer number {cust_rank} out of {total_customers} customers. 
-             You've spent {round(total_spent,2)}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
+             You've spent {total_spent}€ in the StreamQL Shop. Keep buying to go up in the rank!''')
 
 # PRODUCT PAGE FUNCTIONS
 def displayproducts(engine):
