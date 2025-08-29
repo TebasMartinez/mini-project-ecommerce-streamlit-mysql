@@ -34,7 +34,7 @@ streamlit run app.py
 - Inside our main function in `app.py` we start with the app title, which appears in all pages through the app. 
 - Following the title is the connection to the database, which will be used in multiple functions in our program.
 - The app is structured with streamlit session states. In the _session set up_ section we include these structure session states, as well as session states to activate buttons/forms and session variables that are used to store values for logged in users, such as their email address or their cart. There are structure session states for Home Page, Products Page, and Thank You Page. These session states store booleans which can be used inside if statements to allow navigation through the site.
-- Many functionalities have been moved into functions in the `functions.py` file to allow for better readability and debugging.
+- Many functionalities have been moved into functions in the `functions.py` file to allow modularity, readability and easier debugging.
 
 ### Home Page
 Includes:
