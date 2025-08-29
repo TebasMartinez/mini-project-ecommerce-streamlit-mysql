@@ -7,7 +7,7 @@ Follow the steps below to set up and run the app:
 ```
  pip install -r requirements.txt
  ```
- 
+
 - Generate database in MySQL, either by: 
   - forward engineering the database in `mini-project-ecommerce-streamlit-mysql.mwb`, or
   - running the queries in `create_model.sql`.
@@ -71,3 +71,8 @@ These are functionalities appearing in multiple pages through the app and theref
   - `customer_rank(engine)` function ranks the user based on the amount of money they have spent on the shop compared to all customers. It counts the total amount of users in the customers table, ranks users in the customers table based on total spent, and informs the user of their rank, the total amount of customers, and the total amount they have spent on the site.
   - `showorders(engine, position)` allows the user to see a table with information of all their previous orders.
   - `logout(position)`
+
+## Possible future improvements/functionalities
+- Add an admin page with a dashboard and information about the app.
+- Give users the option to reduce the quantities from their cart without completely removing the item.
+- Further code structure: as the app grows, we could consider moving the different sections in `functions.py` into their own .py file.
