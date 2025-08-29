@@ -1,26 +1,30 @@
 # Mini Project: E-commerce Store with Streamlit + MySQL
 
 ## Running this repo
-Set up following the steps below is necessary to run the app in this repo:
+Follow the steps below to set up and run the app:
 
-- Create a new python enviroment and install everything in `requirements.txt`.
-- Generate database in MySQL either with: 
+- Create a new python environment and install the dependencies in `requirements.txt`:
+```
+ pip install -r requirements.txt
+ ```
+ 
+- Generate database in MySQL, either by: 
   - forward engineering the database in `mini-project-ecommerce-streamlit-mysql.mwb`, or
   - running the queries in `create_model.sql`.
 - Generate initial data for the database by running the queries in `generate_data.sql`.
-- Create a folder `.streamlit` with a text file `secrets.toml` with the following structure:
-````
+- Create a `.streamlit/secrets.toml` file in the project root with the structure below. Don't commit this file to version control!
+```
 [mysql]
 host = "localhost"
 database = "miniproject_ecommerce"
 user = "root"
 password = "your-password"
-````
+```
 
 You're ready to run the app! 
-````
+```
 streamlit run app.py
-````
+```
 
 
 ## Database Structure
@@ -44,7 +48,7 @@ Includes:
 - Shows products with the `displayproducts(engine)`, which stores all columns in the products table in the database into a pandas dataframe, shortly cleans the data (adds euro symbol to price column name, and avoids showing any product without stock), and shows the dataframe to the user. This functions returns the resulting dataframe so it can be used in the next function.
 - `update_cart(engine, df)` generates two dropdown menus so the user can choose a product and an amount. The following 'Add to cart' button adds the chosen product and its information in the session state `st.session_state.cart`, which is a dictionary storing entries where each key is a product ID and each value is a list including said product's details (in this order: Product Name, Quantity, Product Price, Product Total Price). It also allows the user to add more units of a product already to the cart. 
 - `showcart()` prompts the user to add something to the cart when the session state cart is empty, and otherwise shows what is in the cart, using `st.divider()` to separate each product, and displays in the end the total cart price calculated with the `calc_cart_total()` function.
-- The `buy(engine)` function includes a button at the end of the cart section. When cliked, this button performs different actions:
+- The `buy(engine)` function includes a button at the end of the cart section. When clicked, this button performs different actions:
   - Adds the order to the orders table in the database.
   - Gets the previously generated order ID from the database.
   - For each product in the cart:
@@ -62,7 +66,7 @@ Includes:
   - `backtoproducts(position)`
   - `logout(position)`
 ### User functionalities
-These are functionalities appearing in multiple pages through the page and therefore moved into functions in the `functions.py` file.
+These are functionalities appearing in multiple pages through the app and therefore moved into functions in the `functions.py` file.
 - `user_sidebar(engine)` function generates a sidebar in which the user is welcomed by named and informed of which email they've used to log in. It also calls other user functionalities functions, including:
   - `customer_rank(engine)` function ranks the user based on the amount of money they have spent on the shop compared to all customers. It counts the total amount of users in the customers table, ranks users in the customers table based on total spent, and informs the user of their rank, the total amount of customers, and the total amount they have spent on the site.
   - `showorders(engine, position)` allows the user to see a table with information of all their previous orders.
